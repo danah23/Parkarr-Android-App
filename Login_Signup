@@ -1,0 +1,115 @@
+/*
+ * Copyright (c) 2015-present, Parse, LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+package com.parse.starter;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.parse.LogInCallback;
+import com.parse.ParseAnalytics;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
+
+
+public class login_signup extends AppCompatActivity {
+
+    Button loginButton;
+    Button signupButton;
+    String usernametxt;
+    String passwordtxt;
+    EditText username;
+    EditText password;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ParseAnalytics.trackAppOpenedInBackground(getIntent());
+
+        username = (EditText) findViewById(R.id.username);
+        password = (EditText) findViewById(R.id.password);
+
+        loginButton = (Button) findViewById(R.id.login);
+        signupButton = (Button) findViewById(R.id.signup);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                usernametxt = username.getText().toString();
+                passwordtxt = password.getText().toString();
+
+                ParseUser.logInInBackground(usernametxt, passwordtxt, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException e) {
+
+                        if(user != null){
+
+                            Intent intent = new Intent(login_signup.this, Welcome.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+
+                            Toast.makeText(getApplicationContext(),
+                                    "This user does not exist. Please sign up or try again",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+            }
+        });
+
+        signupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                usernametxt = username.getText().toString();
+                passwordtxt = password.getText().toString();
+
+                if(usernametxt.equals("") && passwordtxt.equals("")){
+
+                    Toast.makeText(getApplicationContext(),
+                            "Please complete the sign up form",
+                            Toast.LENGTH_LONG).show();
+
+                } else {
+
+                    ParseUser user = new ParseUser();
+                    user.setUsername(usernametxt);
+                    user.setPassword(passwordtxt);
+                    user.signUpInBackground(new SignUpCallback() {
+                        @Override
+                        public void done(ParseException e) {
+
+                            if(e == null){
+
+                            }
+                            Toast.makeText(getApplicationContext(),
+                                    "Sign up successful!",
+                                    Toast.LENGTH_LONG).show();
+
+                        }
+                    });
+
+                }
+            }
+        });
+
+
+    }
+
+}
